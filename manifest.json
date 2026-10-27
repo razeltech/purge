@@ -1,0 +1,46 @@
+{
+  "name": "PURGE — Metadata & C2PA Sanitizer",
+  "short_name": "PURGE",
+  "description": "Zero-cloud client-side metadata and C2PA content credentials sanitizer. Neutralizes invisible provenance manifests and EXIF tags. Developed by Razel Tech.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0D1110",
+  "theme_color": "#0D1110",
+  "categories": [
+    "privacy",
+    "security",
+    "utilities",
+    "multimedia",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/og-preview.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "PURGE Metadata & C2PA Sanitizer Interface"
+    }
+  ]
+}

@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>PURGE</title>
+    <meta name="description" content="Client-side image, video, audio, and document metadata sanitizer.">
+    <meta name="keywords" content="PURGE, metadata remover, EXIF stripper, C2PA remover, video metadata sanitizer, Razel Tech">
+    <meta name="author" content="Razel Tech">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0D1110">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PURGE">
+    <link rel="canonical" href="https://razeltech.github.io/purge/">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta property="og:image" content="https://razeltech.github.io/purge/icons/og-preview.png">
+    <meta name="twitter:image" content="https://razeltech.github.io/purge/icons/og-preview.png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PURGE">
+    <meta property="og:description" content="Client-side image, video, audio, and document metadata sanitizer.">
+    <meta property="og:url" content="https://razeltech.github.io/purge/">
+    <meta property="og:site_name" content="PURGE">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="PURGE">
+    <meta name="twitter:description" content="Client-side image, video, audio, and document metadata sanitizer.">
+
+    <!-- Theme-matched Minimal SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230D1110'/%3E%3Cpath d='M20 18h16a10 10 0 0 1 0 20H20V18zm8 7v6h8a3 3 0 0 0 0-6h-8z' fill='%2382D8B0'/%3E%3Ccircle cx='45' cy='45' r='5' fill='%23F28B82'/%3E%3C/svg%3E">
+
+    <!-- Structured Data / JSON-LD Schema -->
+    <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PURGE",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "All",
+        "url": "https://razeltech.github.io/purge/",
+        "author": {
+          "@type": "Organization",
+          "name": "Razel Tech",
+          "url": "https://razeltech.github.io",
+          "logo": "https://razeltech.github.io/logo.png"
+        },
+        "creator": {
+          "@type": "Person",
+          "name": "Raja Vamsi Dhar Vallabhapurapu",
+          "jobTitle": "Systems Architect & Technical Lead"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Razel Tech",
+        "url": "https://razeltech.github.io",
+        "logo": "https://razeltech.github.io/logo.png",
+        "email": "razeltech.in@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Guntur",
+          "addressRegion": "Andhra Pradesh",
+          "addressCountry": "IN"
+        },
+        "sameAs": [
+          "https://www.linkedin.com/company/razel-tech",
+          "https://github.com/razeltech"
+        ],
+        "founder": {
+          "@type": "Person",
+          "name": "Raja Vamsi Dhar Vallabhapurapu",
+          "jobTitle": "Systems Architect & Technical Lead"
+        }
+      }
+    ]
+    </script>
+
+    <!-- Fonts & CDNs with offline fallbacks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Strict High-Contrast 2-Color Pastel Scheme */
+        :root[data-theme="dark"] {
+            --bg-base: #0D1110;
+            --bg-surface: #141A18;
+            --bg-elevated: #1C2421;
+            --bg-hover: #242E2A;
+            --text-primary: #F4F7F5;
+            --text-secondary: #9EB0A7;
+            --accent: #82D8B0;
+            --accent-contrast: #0D1110;
+            --border-color: #26332E;
+            --border-highlight: #82D8B0;
+            --danger-pastel: #F28B82;
+        }
+
+        :root[data-theme="light"] {
+            --bg-base: #F7F5F0;
+            --bg-surface: #EDE9DF;
+            --bg-elevated: #E2DDD1;
+            --bg-hover: #D7D1C3;
+            --text-primary: #121A16;
+            --text-secondary: #485951;
+            --accent: #1B3B2F;
+            --accent-contrast: #F7F5F0;
+            --border-color: #CEC7B8;
+            --border-highlight: #1B3B2F;
+            --danger-pastel: #992E2E;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* Utilities */
+        .t-base { background-color: var(--bg-base); }
+        .t-surface { background-color: var(--bg-surface); }
+        .t-elevated { background-color: var(--bg-elevated); }
+        .t-text { color: var(--text-primary); }
+        .t-subtext { color: var(--text-secondary); }
+        .t-border { border-color: var(--border-color); }
+        .t-accent-bg { background-color: var(--accent); color: var(--accent-contrast); }
+        .t-accent-border { border-color: var(--border-highlight); }
+        .t-danger-text { color: var(--danger-pastel); }
+        .t-danger-tag {
+            background-color: var(--danger-pastel);
+            color: #0D1110;
+            border: 1px solid var(--danger-pastel);
+        }
+
+        /* Custom Interactive Range Slider with Fill */
+        .custom-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--val, 92%), var(--bg-elevated) var(--val, 92%), var(--bg-elevated) 100%);
+            border: 1px solid var(--border-color);
+            outline: none;
+            cursor: pointer;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            border: 2px solid var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .custom-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            border: 2px solid var(--accent);
+            cursor: pointer;
+        }
+
+        /* Custom Touch-Friendly Toggle */
+        .switch-track {
+            width: 48px;
+            height: 26px;
+            background-color: var(--bg-elevated);
+            border: 1.5px solid var(--border-color);
+            border-radius: 999px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .switch-track[data-active="true"] {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        .switch-thumb {
+            width: 20px;
+            height: 20px;
+            background-color: var(--text-primary);
+            border-radius: 50%;
+            position: absolute;
+            top: 1.5px;
+            left: 2px;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+        }
+        .switch-track[data-active="true"] .switch-thumb {
+            transform: translateX(22px);
+            background-color: var(--accent-contrast);
+        }
+
+        /* Custom Select */
+        .c-select {
+            position: relative;
+            user-select: none;
+        }
+        .c-select-trigger {
+            width: 100%;
+            min-height: 42px;
+            background-color: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: border-color 0.15s ease;
+        }
+        .c-select-trigger:active,
+        .c-select.open .c-select-trigger {
+            border-color: var(--border-highlight);
+        }
+        .c-select-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-highlight);
+            border-radius: 8px;
+            z-index: 60;
+            display: none;
+            max-height: 230px;
+            overflow-y: auto;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        }
+        .c-select.open .c-select-menu {
+            display: block;
+        }
+        .c-select-option {
+            padding: 10px 12px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .c-select-option:last-child {
+            border-bottom: none;
+        }
+        .c-select-option:hover, .c-select-option:active {
+            background-color: var(--bg-elevated);
+        }
+        .c-select-option.selected {
+            background-color: var(--accent);
+            color: var(--accent-contrast);
+            font-weight: 600;
+        }
+
+        /* Accordion transition */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+        }
+        .accordion-item.open .accordion-content {
+            max-height: 1200px;
+            transition: max-height 0.35s ease-in;
+        }
+        .accordion-chevron {
+            transition: transform 0.2s ease;
+        }
+        .accordion-item.open .accordion-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Clean scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Top PWA Banner -->
+    <div id="pwaBanner" class="hidden t-accent-bg px-4 py-2.5 text-xs font-mono border-b t-border flex items-center justify-between flex-shrink-0 z-50">
+        <span class="font-semibold">PURGE is ready for offline app use</span>
+        <div class="flex items-center gap-2">
+            <button id="pwaInstallBtn" class="px-3 py-1 rounded t-surface t-text font-semibold text-xs border t-border">Install</button>
+            <button id="pwaDismissBtn" class="px-2 py-1 font-mono text-xs underline">Dismiss</button>
+        </div>
+    </div>
+
+        <!-- PWA Install Floating Banner -->
+    <div id="pwa-install-banner" class="w-full bg-[#121816] border-b border-[#82D8B0]/30 px-4 py-2 flex items-center justify-between text-xs z-50 transition" style="display: none;">
+        <div class="flex items-center gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-[#82D8B0] animate-pulse"></span>
+            <span class="font-mono text-white font-semibold">PURGE</span>
+            <span class="text-zinc-400 hidden sm:inline font-mono">· 100% Offline client-side C2PA &amp; metadata stripper</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btn-banner-install" class="px-3 py-1 rounded bg-[#82D8B0] text-[#0D1110] font-mono font-bold text-xs hover:bg-emerald-300 transition">
+                INSTALL APP
+            </button>
+            <button id="btn-banner-dismiss" class="px-2 py-1 text-zinc-400 hover:text-white font-mono text-xs transition" aria-label="Dismiss banner">
+                ✕
+            </button>
+        </div>
+    </div>
+
+    <!-- iOS Safari PWA Install Modal -->
+    <div id="ios-pwa-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-[#121816] border border-[#82D8B0]/40 rounded-xl p-6 max-w-sm w-full shadow-2xl">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-9 h-9 rounded-lg bg-[#82D8B0]/20 border border-[#82D8B0]/50 flex items-center justify-center font-mono font-bold text-[#82D8B0]">P</div>
+                <div>
+                    <h3 class="font-mono font-bold text-sm text-white">INSTALL PURGE</h3>
+                    <p class="text-[11px] text-zinc-400 font-mono">Apple iOS / iPadOS Setup</p>
+                </div>
+            </div>
+            <div class="space-y-2.5 text-xs text-zinc-300 font-mono py-3 border-y border-zinc-800 my-3">
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-zinc-800 text-[#82D8B0] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">1</span>
+                    <p>Tap the <strong>Share</strong> button in Safari's bottom toolbar.</p>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-zinc-800 text-[#82D8B0] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">2</span>
+                    <p>Scroll down and select <strong>Add to Home Screen</strong>.</p>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-zinc-800 text-[#82D8B0] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">3</span>
+                    <p>Launch from Home Screen for zero-latency, full-screen offline sanitizing.</p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button id="btn-close-ios-modal" class="w-full py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-mono font-semibold text-xs transition">
+                    UNDERSTOOD
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimal Header -->
+    <header class="t-surface border-b t-border px-4 sm:px-6 h-14 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <h1 class="text-lg font-bold tracking-wider font-mono t-text">PURGE</h1>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-4">
+            <!-- Toggle: Auto Process vs Inspect First -->
+            <div class="flex items-center gap-2" title="Toggle Auto-Purge or Inspect Metadata First">
+                <span id="modeLabel" class="text-xs font-mono font-medium t-text hidden sm:inline">Inspect First</span>
+                <div id="autoProcessToggle" class="switch-track" data-active="false" role="switch" aria-checked="false" tabindex="0">
+                    <div class="switch-thumb"></div>
+                </div>
+            </div>
+
+                        <!-- PWA Install Button -->
+            <button id="pwaInstallHeaderBtn" class="hidden t-elevated text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs font-mono font-medium hover:border-emerald-400 transition" title="Install PURGE as Desktop / Mobile App">
+                INSTALL
+            </button>
+
+            <!-- Theme Toggle -->
+            <button id="themeBtn" aria-label="Toggle Theme" class="t-elevated t-text border t-border px-3 py-1.5 rounded-lg text-xs font-mono font-medium hover:t-accent-border transition">
+                <span id="themeLabel">LIGHT</span>
+            </button>
+
+            <!-- Reset Button -->
+            <button id="resetBtn" class="hidden t-elevated t-text border t-border px-3 py-1.5 rounded-lg text-xs font-mono font-medium hover:t-accent-border transition">
+                Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area: App-First Flow (Upload First -> Queue & Config) -->
+    <main class="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 flex flex-col gap-4">
+
+        <!-- 1. Primary Action: Upload Zone at the very top -->
+        <div id="uploadZone" class="t-surface border-2 border-dashed t-border hover:t-accent-border rounded-xl p-5 sm:p-7 cursor-pointer transition flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4 min-w-0 w-full sm:w-auto">
+                <div class="w-12 h-12 rounded-xl t-elevated border t-border flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 t-text" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V3m0 0l4.5 4.5M12 3L7.5 7.5M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm sm:text-base font-semibold t-text">Select, drop, or paste media files</p>
+                    <p class="text-xs font-mono t-subtext mt-0.5">Images, Videos, Audio, PDFs · Ctrl+V supported · Offline processing</p>
+                </div>
+            </div>
+            <button type="button" class="w-full sm:w-auto text-xs font-mono font-semibold px-4 py-2.5 rounded-lg t-accent-bg flex-shrink-0 text-center">
+                Browse Files
+            </button>
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,audio/mpeg,audio/mp3,audio/wav,application/pdf" multiple class="hidden">
+        </div>
+
+        <!-- 2. Bulk Action Bar (Visible when files exist) -->
+        <div id="bulkBar" class="hidden t-surface border t-border rounded-xl px-4 py-3 items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
+                <span id="bulkStatusText" class="text-xs font-mono font-semibold t-text">0 files staged</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="purgeAllBtn" class="hidden text-xs font-mono font-semibold px-3.5 py-2 rounded-lg t-accent-bg transition">
+                    Purge All Files
+                </button>
+                <button id="bulkZipBtn" class="hidden text-xs font-mono font-semibold px-3.5 py-2 rounded-lg t-elevated t-text border t-border hover:t-accent-border transition">
+                    Download ZIP
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Staged Files Queue & Detailed Inspection Panels -->
+        <div id="queueContainer" class="flex flex-col gap-3">
+            <div id="emptyQueueState" class="t-surface border t-border rounded-xl p-8 text-center flex flex-col items-center justify-center">
+                <p class="text-xs font-mono uppercase tracking-wider t-subtext">Workspace Clean</p>
+                <p class="text-xs t-subtext mt-1 max-w-sm">Drop images, clips, tracks, or PDFs above to view full metadata payloads before stripping.</p>
+            </div>
+            <div id="itemQueue" class="flex flex-col gap-3"></div>
+        </div>
+
+        <!-- 4. Sanitizer Config Panel (Appears Contextually AFTER Upload) -->
+        <section id="configSection" class="hidden t-surface border t-border rounded-xl p-4 sm:p-5 transition">
+            <div class="flex items-center justify-between border-b t-border pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono uppercase tracking-wider font-semibold t-text">Sanitizer Settings</span>
+                </div>
+                <span id="pipelineBadge" class="text-[11px] font-mono px-2 py-0.5 rounded t-accent-bg font-semibold">INSPECT MODE</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Target Format -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-medium t-text">Output Container</label>
+                    <div class="c-select" id="formatDropdown" data-value="original">
+                        <div class="c-select-trigger">
+                            <span class="c-select-label font-mono text-xs truncate">Match Source</span>
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                        <div class="c-select-menu">
+                            <div class="c-select-option selected" data-val="original">Match Source Container</div>
+                            <div class="c-select-option" data-val="image/jpeg">IMG — JPEG (.jpg)</div>
+                            <div class="c-select-option" data-val="image/png">IMG — PNG (.png)</div>
+                            <div class="c-select-option" data-val="image/webp">IMG — WebP (.webp)</div>
+                            <div class="c-select-option" data-val="video/mp4">VID — MP4 Scrub (.mp4)</div>
+                            <div class="c-select-option" data-val="video/quicktime">VID — QuickTime (.mov)</div>
+                            <div class="c-select-option" data-val="video/webm">VID — WebM Clean (.webm)</div>
+                            <div class="c-select-option" data-val="audio/mpeg">AUD — MP3 Clean (.mp3)</div>
+                            <div class="c-select-option" data-val="audio/wav">AUD — WAV Clean (.wav)</div>
+                            <div class="c-select-option" data-val="application/pdf">DOC — PDF Scrub (.pdf)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fidelity Slider -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <label for="qualityRange" class="text-xs font-medium t-text">Compression Fidelity</label>
+                        <span id="qualityVal" class="text-xs font-mono font-semibold t-text">92%</span>
+                    </div>
+                    <input type="range" id="qualityRange" min="10" max="100" value="92" class="custom-slider" style="--val: 92%;">
+                </div>
+
+                <!-- Dimension Scale Slider -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <label for="scaleRange" class="text-xs font-medium t-text">Dimension Scaling</label>
+                        <span id="scaleVal" class="text-xs font-mono font-semibold t-text">100%</span>
+                    </div>
+                    <input type="range" id="scaleRange" min="25" max="100" step="5" value="100" class="custom-slider" style="--val: 100%;">
+                </div>
+
+                <!-- Hash Filename Option -->
+                <div class="space-y-1.5 flex flex-col justify-between">
+                    <label class="block text-xs font-medium t-text">Hash Filenames</label>
+                    <div class="flex items-center justify-between p-2 rounded-lg t-elevated border t-border min-h-[42px]">
+                        <span class="text-xs font-mono t-subtext">Random token title</span>
+                        <div id="hashNameToggle" class="switch-track" data-active="false" role="switch" aria-checked="false" tabindex="0">
+                            <div class="switch-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. History Drawer / Toggle -->
+        <section class="t-surface border t-border rounded-xl p-3.5 flex flex-col gap-3">
+            <div class="flex items-center justify-between cursor-pointer" id="historyHeaderToggle">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-semibold t-text uppercase tracking-wider">Device History</span>
+                    <span id="historyBadge" class="text-[10px] font-mono px-2 py-0.5 rounded t-elevated t-text border t-border">0</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="clearHistoryBtn" class="text-[11px] font-mono font-semibold px-2.5 py-1 rounded t-elevated t-text border t-border hover:t-accent-border">
+                        Clear
+                    </button>
+                    <svg id="historyChevron" class="w-4 h-4 t-subtext transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                </div>
+            </div>
+            <div id="historyListContainer" class="hidden space-y-2 pt-2 border-t t-border">
+                <div id="historyList" class="space-y-2"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Clean Footer -->
+    <footer class="t-surface border-t t-border px-4 sm:px-6 h-12 flex items-center justify-between text-xs flex-shrink-0">
+        <span class="font-mono font-semibold t-text">PURGE</span>
+        <span class="t-subtext">Developed by <a href="https://razeltech.github.io" target="_blank" rel="noopener noreferrer" class="t-text font-semibold underline underline-offset-4">Razel Tech</a></span>
+    </footer>
+
+    <script>
+        /* =========================================================================
+           1. STATE & CORE CONFIG
+           ========================================================================= */
+        const state = {
+            autoProcess: false,
+            hashFilenames: false,
+            formatOverride: 'original',
+            quality: 92,
+            scale: 100,
+            items: [],
+            totalBytesSaved: 0,
+            deferredPrompt: null
+        };
+
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadZone = document.getElementById('uploadZone');
+        const itemQueue = document.getElementById('itemQueue');
+        const emptyQueueState = document.getElementById('emptyQueueState');
+        const configSection = document.getElementById('configSection');
+        const bulkBar = document.getElementById('bulkBar');
+        const bulkStatusText = document.getElementById('bulkStatusText');
+        const purgeAllBtn = document.getElementById('purgeAllBtn');
+        const bulkZipBtn = document.getElementById('bulkZipBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const autoProcessToggle = document.getElementById('autoProcessToggle');
+        const modeLabel = document.getElementById('modeLabel');
+        const pipelineBadge = document.getElementById('pipelineBadge');
+        const hashNameToggle = document.getElementById('hashNameToggle');
+        const themeBtn = document.getElementById('themeBtn');
+        const themeLabel = document.getElementById('themeLabel');
+
+        const qualityRange = document.getElementById('qualityRange');
+        const qualityVal = document.getElementById('qualityVal');
+        const scaleRange = document.getElementById('scaleRange');
+        const scaleVal = document.getElementById('scaleVal');
+
+        const historyHeaderToggle = document.getElementById('historyHeaderToggle');
+        const historyListContainer = document.getElementById('historyListContainer');
+        const historyChevron = document.getElementById('historyChevron');
+        const historyBadge = document.getElementById('historyBadge');
+        const historyList = document.getElementById('historyList');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
+        // Sliders
+        function updateSliderFill(slider, labelEl) {
+            const min = parseFloat(slider.min) || 0;
+            const max = parseFloat(slider.max) || 100;
+            const val = parseFloat(slider.value);
+            const pct = ((val - min) / (max - min)) * 100;
+            slider.style.setProperty('--val', `${pct}%`);
+            labelEl.textContent = `${val}%`;
+        }
+
+        qualityRange.addEventListener('input', () => {
+            state.quality = parseInt(qualityRange.value, 10);
+            updateSliderFill(qualityRange, qualityVal);
+        });
+
+        scaleRange.addEventListener('input', () => {
+            state.scale = parseInt(scaleRange.value, 10);
+            updateSliderFill(scaleRange, scaleVal);
+        });
+
+        updateSliderFill(qualityRange, qualityVal);
+        updateSliderFill(scaleRange, scaleVal);
+
+        // Switches
+        function bindSwitch(el, callback) {
+            const toggle = () => {
+                const next = el.getAttribute('data-active') !== 'true';
+                el.setAttribute('data-active', String(next));
+                el.setAttribute('aria-checked', String(next));
+                callback(next);
+            };
+            el.addEventListener('click', toggle);
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle();
+                }
+            });
+        }
+
+        bindSwitch(autoProcessToggle, (active) => {
+            state.autoProcess = active;
+            modeLabel.textContent = active ? 'Auto-Purge' : 'Inspect First';
+            pipelineBadge.textContent = active ? 'AUTO-PURGE' : 'INSPECT MODE';
+            if (active) {
+                state.items.forEach((item, idx) => {
+                    if (item && item.status === 'inspected') executeSanitize(idx);
+                });
+            }
+        });
+
+        bindSwitch(hashNameToggle, (active) => {
+            state.hashFilenames = active;
+        });
+
+        // Dropdown
+        function initCustomDropdown(dropdownId, onSelect) {
+            const container = document.getElementById(dropdownId);
+            const trigger = container.querySelector('.c-select-trigger');
+            const label = container.querySelector('.c-select-label');
+            const options = container.querySelectorAll('.c-select-option');
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                container.classList.toggle('open');
+            });
+
+            options.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    options.forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    const val = opt.getAttribute('data-val');
+                    container.setAttribute('data-value', val);
+                    label.textContent = opt.textContent;
+                    container.classList.remove('open');
+                    onSelect(val);
+                });
+            });
+        }
+
+        initCustomDropdown('formatDropdown', (val) => { state.formatOverride = val; });
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.c-select.open').forEach(el => el.classList.remove('open'));
+        });
+
+        // Theme Toggle
+        themeBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            themeLabel.textContent = next === 'dark' ? 'LIGHT' : 'DARK';
+        });
+
+        // History Toggle
+        historyHeaderToggle.addEventListener('click', (e) => {
+            if (e.target === clearHistoryBtn) return;
+            const isHidden = historyListContainer.classList.contains('hidden');
+            if (isHidden) {
+                historyListContainer.classList.remove('hidden');
+                historyChevron.style.transform = 'rotate(180deg)';
+            } else {
+                historyListContainer.classList.add('hidden');
+                historyChevron.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        /* =========================================================================
+           2. PERSISTENT HISTORY (INDEXEDDB)
+           ========================================================================= */
+        const DB_NAME = 'purge_offline_store';
+        const STORE_NAME = 'history_records';
+        let dbInstance = null;
+
+        function openHistoryDB() {
+            return new Promise((resolve, reject) => {
+                if (dbInstance) return resolve(dbInstance);
+                const req = indexedDB.open(DB_NAME, 1);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+                req.onsuccess = (e) => {
+                    dbInstance = e.target.result;
+                    resolve(dbInstance);
+                };
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function saveHistoryRecord(record) {
+            try {
+                const db = await openHistoryDB();
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).add(record);
+                tx.oncomplete = () => renderHistoryList();
+            } catch (err) {
+                console.warn('History write error:', err);
+            }
+        }
+
+        async function renderHistoryList() {
+            try {
+                const db = await openHistoryDB();
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const req = tx.objectStore(STORE_NAME).getAll();
+                req.onsuccess = () => {
+                    const rows = (req.result || []).reverse();
+                    historyBadge.textContent = rows.length;
+                    if (rows.length === 0) {
+                        historyList.innerHTML = `<div class="t-surface border t-border rounded-lg p-4 text-center text-xs font-mono t-subtext">No prior files processed on this device.</div>`;
+                        return;
+                    }
+                    historyList.innerHTML = rows.map(r => `
+                        <div class="t-elevated border t-border rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded t-accent-bg font-semibold">${r.category}</span>
+                                    <span class="text-xs font-semibold t-text truncate">${escapeHtml(r.outName)}</span>
+                                    <span class="text-[11px] font-mono t-subtext">(${formatBytes(r.originalSize)} → ${formatBytes(r.cleanSize)})</span>
+                                </div>
+                                <p class="text-[10px] font-mono t-subtext mt-1">${r.strippedCount} metadata tags eradicated</p>
+                            </div>
+                            <span class="text-[10px] font-mono t-subtext whitespace-nowrap">${r.timestamp}</span>
+                        </div>
+                    `).join('');
+                };
+            } catch (err) {
+                console.warn('History read error:', err);
+            }
+        }
+
+        clearHistoryBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            try {
+                const db = await openHistoryDB();
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).clear();
+                tx.oncomplete = () => renderHistoryList();
+            } catch (err) {
+                console.warn(err);
+            }
+        });
+
+        /* =========================================================================
+           3. DEEP METADATA INSPECTOR (STRUCTURED & CATEGORIZED)
+           ========================================================================= */
+        function formatBytes(bytes) {
+            if (!bytes || bytes <= 0) return '0 B';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+        }
+
+        function classifyFile(file) {
+            const type = file.type || '';
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            if (type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return 'IMG';
+            if (type.startsWith('video/') || ['mp4', 'mov', 'webm'].includes(ext)) return 'VID';
+            if (type.startsWith('audio/') || ['mp3', 'wav'].includes(ext)) return 'AUD';
+            if (type === 'application/pdf' || ext === 'pdf') return 'PDF';
+            return 'BIN';
+        }
+
+        // Deep binary parser for C2PA, EXIF, Photoshop 8BIM, QuickTime atoms, ID3 tags
+        function parseDeepMetadata(buffer, file, category) {
+            const uint8 = new Uint8Array(buffer);
+            const categories = {
+                hardware: [],
+                location: [],
+                provenance: [],
+                software: [],
+                timestamps: [],
+                container: []
+            };
+
+            const scanLimit = Math.min(uint8.length - 8, 8388608); // 8MB inspect ceiling
+
+            // Quick text search for common markers
+            let hasC2PA = false;
+            let hasAI = false;
+            let has8BIM = false;
+            let hasXMP = false;
+            let hasGPSAtom = false;
+            let hasUdta = false;
+            let hasId3 = false;
+            let hasPdfDict = false;
+
+            // Audio ID3
+            if (category === 'AUD' || file.name.endsWith('.mp3')) {
+                if (uint8.length > 10 && uint8[0] === 0x49 && uint8[1] === 0x44 && uint8[2] === 0x33) {
+                    hasId3 = true;
+                    const tagSize = ((uint8[6] & 0x7f) << 21) | ((uint8[7] & 0x7f) << 14) | ((uint8[8] & 0x7f) << 7) | (uint8[9] & 0x7f);
+                    categories.provenance.push({ key: 'ID3v2 Track Manifest', val: `${formatBytes(tagSize + 10)} Tag Header` });
+                }
+                if (uint8.length > 128) {
+                    const tail = uint8.length - 128;
+                    if (uint8[tail] === 0x54 && uint8[tail+1] === 0x41 && uint8[tail+2] === 0x47) {
+                        categories.provenance.push({ key: 'ID3v1 Footer', val: 'Legacy Track Metadata Block' });
+                    }
+                }
+            }
+
+            // Quick string probe in header segment for AI generators
+            const sampleSliceLen = Math.min(uint8.length, 524288); // 512KB probe
+            let headerText = '';
+            for (let s = 0; s < sampleSliceLen; s += 2) {
+                const charCode = uint8[s];
+                if (charCode >= 32 && charCode <= 126) {
+                    headerText += String.fromCharCode(charCode);
+                }
+            }
+            const lowerSample = headerText.toLowerCase();
+
+            if (lowerSample.includes('midjourney') || lowerSample.includes('stable diffusion') || lowerSample.includes('dall-e') || lowerSample.includes('firefly') || lowerSample.includes('novelai') || lowerSample.includes('com.adobe.firefly')) {
+                hasAI = true;
+                let matchedModel = 'Generative AI Pipeline';
+                if (lowerSample.includes('midjourney')) matchedModel = 'Midjourney Generator';
+                else if (lowerSample.includes('stable diffusion')) matchedModel = 'Stable Diffusion Engine';
+                else if (lowerSample.includes('dall-e')) matchedModel = 'DALL-E System';
+                else if (lowerSample.includes('firefly')) matchedModel = 'Adobe Firefly AI';
+                categories.provenance.push({ key: 'AI Synthesis Marker', val: matchedModel });
+            }
+
+            for (let i = 0; i < scanLimit; i++) {
+                // C2PA / JUMBF Manifest
+                if (!hasC2PA && (
+                    (uint8[i] === 0x6A && uint8[i+1] === 0x75 && uint8[i+2] === 0x6D && uint8[i+3] === 0x62) ||
+                    (uint8[i] === 0x63 && uint8[i+1] === 0x32 && uint8[i+2] === 0x70 && uint8[i+3] === 0x61)
+                )) {
+                    hasC2PA = true;
+                    categories.provenance.push({ key: 'C2PA Manifest', val: 'Content Credentials (CR) Provenance Asset' });
+                }
+
+                // Adobe 8BIM Photoshop Resource
+                if (!has8BIM && uint8[i] === 0x38 && uint8[i+1] === 0x42 && uint8[i+2] === 0x49 && uint8[i+3] === 0x4D) {
+                    has8BIM = true;
+                    categories.software.push({ key: 'Adobe 8BIM', val: 'Photoshop Document Resource Block' });
+                }
+
+                // XMP Packet
+                if (!hasXMP && uint8[i] === 0x58 && uint8[i+1] === 0x4D && uint8[i+2] === 0x50 && uint8[i+3] === 0x5F) {
+                    hasXMP = true;
+                    categories.software.push({ key: 'XMP Packet', val: 'Extensible Metadata Platform XML' });
+                }
+
+                // QuickTime/MP4 Location atom
+                if (!hasGPSAtom && (
+                    (uint8[i] === 0xA9 && uint8[i+1] === 0x78 && uint8[i+2] === 0x79 && uint8[i+3] === 0x7A) ||
+                    (uint8[i] === 0x6C && uint8[i+1] === 0x6F && uint8[i+2] === 0x63 && uint8[i+3] === 0x69)
+                )) {
+                    hasGPSAtom = true;
+                    categories.location.push({ key: 'QuickTime GPS', val: 'ISO 6709 Spatial Coordinates (©xyz)' });
+                }
+
+                // QuickTime User Data Box (udta)
+                if (!hasUdta && uint8[i] === 0x75 && uint8[i+1] === 0x64 && uint8[i+2] === 0x74 && uint8[i+3] === 0x61) {
+                    hasUdta = true;
+                    categories.container.push({ key: 'ISO udta Box', val: 'User Data Tag Container' });
+                }
+
+                // PDF Information Dictionary
+                if (category === 'PDF' && !hasPdfDict && uint8[i] === 0x2F && uint8[i+1] === 0x41 && uint8[i+2] === 0x75 && uint8[i+3] === 0x74 && uint8[i+4] === 0x68) {
+                    hasPdfDict = true;
+                    categories.software.push({ key: 'PDF Info Dict', val: 'Author / Subject / Creator Metadata' });
+                }
+            }
+
+            // Always provide file baseline
+            categories.container.push({ key: 'Source Container', val: `${file.type || 'binary/stream'} (${formatBytes(file.size)})` });
+            if (file.lastModified) {
+                categories.timestamps.push({ key: 'Filesystem Timestamp', val: new Date(file.lastModified).toLocaleString() });
+            }
+
+            return {
+                groups: categories,
+                hasC2PA,
+                hasAI
+            };
+        }
+
+        // Scrub binary structures
+        function scrubBinaryContainer(buffer, category) {
+            const clone = buffer.slice(0);
+            const uint8 = new Uint8Array(clone);
+
+            // Strip ID3 for audio
+            if (category === 'AUD' && uint8.length > 10 && uint8[0] === 0x49 && uint8[1] === 0x44 && uint8[2] === 0x33) {
+                const tagSize = ((uint8[6] & 0x7f) << 21) | ((uint8[7] & 0x7f) << 14) | ((uint8[8] & 0x7f) << 7) | (uint8[9] & 0x7f);
+                const startOffset = Math.min(tagSize + 10, uint8.length);
+                let endOffset = uint8.length;
+                if (uint8.length > 128) {
+                    const tail = uint8.length - 128;
+                    if (uint8[tail] === 0x54 && uint8[tail+1] === 0x41 && uint8[tail+2] === 0x47) {
+                        endOffset = tail;
+                    }
+                }
+                return clone.slice(startOffset, endOffset);
+            }
+
+            // Neutralize known MP4/MOV/PDF atom markers by overwriting to 'free' box
+            const patterns = [
+                [0x75, 0x64, 0x74, 0x61], // udta
+                [0x6A, 0x75, 0x6D, 0x62], // jumb
+                [0x63, 0x32, 0x70, 0x61], // c2pa
+                [0xA9, 0x78, 0x79, 0x7A], // ©xyz
+                [0xA9, 0x74, 0x6F, 0x6F], // ©too
+                [0xA9, 0x73, 0x77, 0x72], // ©swr
+                [0xA9, 0x64, 0x61, 0x79], // ©day
+                [0xA9, 0x6D, 0x61, 0x6B], // ©mak
+                [0xA9, 0x6D, 0x6F, 0x64], // ©mod
+                [0x58, 0x4D, 0x50, 0x5F], // XMP_
+                [0x4C, 0x49, 0x53, 0x54]  // WAV LIST
+            ];
+
+            for (let i = 0; i < uint8.length - 4; i++) {
+                for (let p = 0; p < patterns.length; p++) {
+                    const pat = patterns[p];
+                    if (uint8[i] === pat[0] && uint8[i+1] === pat[1] && uint8[i+2] === pat[2] && uint8[i+3] === pat[3]) {
+                        uint8[i]   = 0x66; // 'f'
+                        uint8[i+1] = 0x72; // 'r'
+                        uint8[i+2] = 0x65; // 'e'
+                        uint8[i+3] = 0x65; // 'e'
+                    }
+                }
+            }
+            return clone;
+        }
+
+        /* =========================================================================
+           4. STAGING, RENDERING & INTERACTIVE ACCORDIONS
+           ========================================================================= */
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('t-accent-border');
+        });
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('t-accent-border');
+        });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('t-accent-border');
+            if (e.dataTransfer.files.length > 0) stageIncomingFiles(Array.from(e.dataTransfer.files));
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) stageIncomingFiles(Array.from(fileInput.files));
+        });
+
+        // Direct Clipboard Paste (Ctrl+V / Cmd+V)
+        window.addEventListener('paste', (e) => {
+            const clipboardItems = e.clipboardData?.files;
+            if (clipboardItems && clipboardItems.length > 0) {
+                e.preventDefault();
+                stageIncomingFiles(Array.from(clipboardItems));
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            state.items = [];
+            fileInput.value = '';
+            itemQueue.innerHTML = '';
+            emptyQueueState.classList.remove('hidden');
+            configSection.classList.add('hidden');
+            bulkBar.classList.add('hidden');
+            bulkBar.classList.remove('flex');
+            resetBtn.classList.add('hidden');
+        });
+
+        function stageIncomingFiles(files) {
+            emptyQueueState.classList.add('hidden');
+            configSection.classList.remove('hidden');
+            resetBtn.classList.remove('hidden');
+
+            files.forEach((file) => {
+                const idx = state.items.length;
+                const category = classifyFile(file);
+                const itemObj = {
+                    index: idx,
+                    file,
+                    category,
+                    status: 'inspecting',
+                    hasC2PA: false,
+                    hasAI: false,
+                    metaGroups: {},
+                    totalTagsCount: 0,
+                    buffer: null,
+                    previewUrl: URL.createObjectURL(file),
+                    cleanBlob: null,
+                    outName: ''
+                };
+                state.items.push(itemObj);
+                renderQueueCard(itemObj);
+                inspectFileItem(itemObj);
+            });
+
+            syncBulkBar();
+        }
+
+        function renderQueueCard(item) {
+            const card = document.createElement('div');
+            card.id = `card-${item.index}`;
+            card.className = 't-surface border t-border rounded-xl p-3 sm:p-4 space-y-3';
+
+            let thumb = `<span class="text-xs font-mono font-bold t-text">${item.category}</span>`;
+            if (item.category === 'IMG') {
+                thumb = `<img src="${item.previewUrl}" alt="" class="w-full h-full object-cover">`;
+            } else if (item.category === 'VID') {
+                thumb = `<video src="${item.previewUrl}" muted playsinline class="w-full h-full object-cover"></video>`;
+            }
+
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                        <div class="relative w-12 h-12 rounded-lg t-elevated border t-border overflow-hidden flex items-center justify-center flex-shrink-0">
+                            ${thumb}
+                            <span id="thumb-alert-tag-${item.index}" class="hidden absolute top-0.5 right-0.5 px-1 py-0.2 rounded text-[8px] font-mono font-bold t-danger-tag tracking-wider leading-none"></span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded t-elevated t-text border t-border">${item.category}</span>
+                                <span id="provenance-tag-${item.index}" class="hidden text-[10px] font-mono font-bold px-2 py-0.5 rounded t-danger-tag"></span>
+                                <p class="text-xs sm:text-sm font-semibold t-text truncate">${escapeHtml(item.file.name)}</p>
+                            </div>
+                            <p id="meta-summary-${item.index}" class="text-[11px] font-mono t-subtext mt-0.5">Analyzing embedded headers...</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 t-border">
+                        <button id="copy-report-btn-${item.index}" title="Copy Metadata Report" class="hidden text-xs font-mono font-semibold px-2.5 py-2 rounded-lg t-elevated t-text border t-border hover:t-accent-border transition">
+                            Copy
+                        </button>
+                        <button id="strip-btn-${item.index}" class="hidden text-xs font-mono font-semibold px-3 py-2 rounded-lg t-accent-bg transition cursor-pointer">
+                            Strip Metadata
+                        </button>
+                        <a id="dl-btn-${item.index}" class="hidden text-xs font-mono font-semibold px-3 py-2 rounded-lg t-accent-bg transition cursor-pointer whitespace-nowrap">
+                            Download Clean
+                        </a>
+                        <button id="remove-btn-${item.index}" title="Remove file" class="text-xs font-mono px-2 py-2 rounded-lg t-elevated t-subtext hover:t-text border t-border">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Collapsible Detailed Inspector Accordion -->
+                <div class="accordion-item open border t-border rounded-lg t-elevated overflow-hidden" id="accordion-${item.index}">
+                    <button type="button" class="w-full px-3 py-2.5 flex items-center justify-between text-left cursor-pointer t-surface border-b t-border" onclick="toggleAccordion(${item.index})">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono font-semibold t-text" id="acc-title-${item.index}">Detected Metadata</span>
+                            <span id="badge-count-${item.index}" class="text-[10px] font-mono px-2 py-0.5 rounded t-accent-bg font-semibold">Scanning</span>
+                        </div>
+                        <svg class="w-4 h-4 t-subtext accordion-chevron" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div id="meta-details-body-${item.index}" class="p-3 space-y-2 text-xs font-mono"></div>
+                    </div>
+                </div>
+            `;
+
+            itemQueue.prepend(card);
+
+            const stripBtn = document.getElementById(`strip-btn-${item.index}`);
+            stripBtn.addEventListener('click', () => executeSanitize(item.index));
+
+            const removeBtn = document.getElementById(`remove-btn-${item.index}`);
+            removeBtn.addEventListener('click', () => removeItem(item.index));
+
+            const copyReportBtn = document.getElementById(`copy-report-btn-${item.index}`);
+            copyReportBtn.addEventListener('click', () => copyMetadataReport(item.index));
+        }
+
+        function removeItem(index) {
+            const card = document.getElementById(`card-${index}`);
+            if (card) card.remove();
+            state.items[index] = null;
+            const remaining = state.items.filter(Boolean);
+            if (remaining.length === 0) {
+                emptyQueueState.classList.remove('hidden');
+                configSection.classList.add('hidden');
+                bulkBar.classList.add('hidden');
+                resetBtn.classList.add('hidden');
+            } else {
+                syncBulkBar();
+            }
+        }
+
+        function copyMetadataReport(index) {
+            const item = state.items[index];
+            if (!item) return;
+            const lines = [`FILE: ${item.file.name}`, `SIZE: ${formatBytes(item.file.size)}`, `STATUS: ${item.status.toUpperCase()}`, '---'];
+            Object.entries(item.metaGroups).forEach(([grp, list]) => {
+                if (list && list.length > 0) {
+                    lines.push(`[${grp.toUpperCase()}]`);
+                    list.forEach(entry => lines.push(` - ${entry.key}: ${entry.val}`));
+                }
+            });
+            const textToCopy = lines.join('\n');
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const copyBtn = document.getElementById(`copy-report-btn-${index}`);
+            if (copyBtn) {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied';
+                setTimeout(() => { copyBtn.textContent = originalText; }, 1600);
+            }
+        }
+
+        window.toggleAccordion = function(index) {
+            const acc = document.getElementById(`accordion-${index}`);
+            if (acc) acc.classList.toggle('open');
+        };
+
+        function inspectFileItem(item) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                item.buffer = e.target.result;
+                const deepResult = parseDeepMetadata(item.buffer, item.file, item.category);
+                const binaryGroups = deepResult.groups;
+                item.hasC2PA = deepResult.hasC2PA;
+                item.hasAI = deepResult.hasAI;
+
+                if (item.category === 'IMG' && typeof EXIF !== 'undefined') {
+                    EXIF.getData(item.file, function() {
+                        const exif = EXIF.getAllTags(this) || {};
+
+                        if (exif.Make || exif.Model) {
+                            binaryGroups.hardware.push({ key: 'Device Model', val: `${exif.Make || ''} ${exif.Model || ''}`.trim() });
+                        }
+                        if (exif.LensModel || exif.LensMake) {
+                            binaryGroups.hardware.push({ key: 'Optics / Lens', val: `${exif.LensMake || ''} ${exif.LensModel || ''}`.trim() });
+                        }
+                        if (exif.Software) {
+                            const sw = String(exif.Software);
+                            binaryGroups.software.push({ key: 'Software / OS', val: sw });
+                            const swLower = sw.toLowerCase();
+                            if (swLower.includes('midjourney') || swLower.includes('dall-e') || swLower.includes('stable diffusion') || swLower.includes('firefly')) {
+                                item.hasAI = true;
+                            }
+                        }
+                        if (exif.DateTime || exif.DateTimeOriginal) {
+                            binaryGroups.timestamps.push({ key: 'Capture Timestamp', val: String(exif.DateTimeOriginal || exif.DateTime) });
+                        }
+                        if (exif.GPSLatitude && exif.GPSLongitude) {
+                            const lat = `${exif.GPSLatitude[0]}°${exif.GPSLatitude[1]}'${exif.GPSLatitude[2]}" ${exif.GPSLatitudeRef || 'N'}`;
+                            const lon = `${exif.GPSLongitude[0]}°${exif.GPSLongitude[1]}'${exif.GPSLongitude[2]}" ${exif.GPSLongitudeRef || 'E'}`;
+                            binaryGroups.location.push({ key: 'GPS Geotag', val: `${lat}, ${lon}` });
+                        }
+                        if (exif.ISOSpeedRatings || exif.ExposureTime || exif.FNumber) {
+                            binaryGroups.hardware.push({ key: 'Camera Exposure', val: `ISO ${exif.ISOSpeedRatings || 'N/A'}, f/${exif.FNumber || 'N/A'}` });
+                        }
+
+                        finalizeInspection(item, binaryGroups);
+                    });
+                } else {
+                    finalizeInspection(item, binaryGroups);
+                }
+            };
+            reader.readAsArrayBuffer(item.file);
+        }
+
+        function finalizeInspection(item, groups) {
+            item.metaGroups = groups;
+            let total = 0;
+            Object.values(groups).forEach(arr => total += arr.length);
+            item.totalTagsCount = total;
+            item.status = 'inspected';
+
+            // Provenance & Content Credentials (CR / AI) alert tags
+            const provenanceTag = document.getElementById(`provenance-tag-${item.index}`);
+            const thumbAlert = document.getElementById(`thumb-alert-tag-${item.index}`);
+
+            if (item.hasC2PA && item.hasAI) {
+                provenanceTag.textContent = 'CR + AI DETECTED (WILL TRIGGER AI LABEL)';
+                provenanceTag.classList.remove('hidden');
+                thumbAlert.textContent = 'CR/AI';
+                thumbAlert.classList.remove('hidden');
+            } else if (item.hasC2PA) {
+                provenanceTag.textContent = 'C2PA DETECTED (WILL TRIGGER AI LABEL)';
+                provenanceTag.classList.remove('hidden');
+                thumbAlert.textContent = 'CR';
+                thumbAlert.classList.remove('hidden');
+            } else if (item.hasAI) {
+                provenanceTag.textContent = 'AI DETECTED (WILL TRIGGER AI LABEL)';
+                provenanceTag.classList.remove('hidden');
+                thumbAlert.textContent = 'AI';
+                thumbAlert.classList.remove('hidden');
+            }
+
+            const copyReportBtn = document.getElementById(`copy-report-btn-${item.index}`);
+            if (copyReportBtn) copyReportBtn.classList.remove('hidden');
+
+            const summaryEl = document.getElementById(`meta-summary-${item.index}`);
+            summaryEl.textContent = `${formatBytes(item.file.size)} · ${total} metadata tags identified`;
+
+            const badgeCount = document.getElementById(`badge-count-${item.index}`);
+            badgeCount.textContent = `${total} TAGS FOUND`;
+
+            renderAccordionDetails(item, false);
+
+            if (state.autoProcess) {
+                executeSanitize(item.index);
+            } else {
+                const stripBtn = document.getElementById(`strip-btn-${item.index}`);
+                stripBtn.classList.remove('hidden');
+                syncBulkBar();
+            }
+        }
+
+        function renderAccordionDetails(item, isPurged) {
+            const body = document.getElementById(`meta-details-body-${item.index}`);
+            const badgeCount = document.getElementById(`badge-count-${item.index}`);
+            const accTitle = document.getElementById(`acc-title-${item.index}`);
+
+            if (isPurged) {
+                accTitle.textContent = 'Purged Metadata Report';
+                badgeCount.textContent = 'PURGED CLEAN';
+                badgeCount.className = 'text-[10px] font-mono px-2 py-0.5 rounded t-accent-bg font-semibold';
+            }
+
+            const sections = [
+                { title: 'Hardware & Device', data: item.metaGroups.hardware },
+                { title: 'Geolocation & Tracking', data: item.metaGroups.location },
+                { title: 'AI Provenance & Credentials', data: item.metaGroups.provenance },
+                { title: 'Software & Processing', data: item.metaGroups.software },
+                { title: 'Timestamps', data: item.metaGroups.timestamps },
+                { title: 'Container Tags', data: item.metaGroups.container }
+            ];
+
+            let html = '';
+            sections.forEach(sec => {
+                if (!sec.data || sec.data.length === 0) return;
+                html += `
+                    <div class="space-y-1">
+                        <div class="text-[10px] uppercase tracking-wider font-semibold t-subtext">${sec.title}</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            ${sec.data.map(d => `
+                                <div class="t-surface border t-border rounded px-2.5 py-1.5 flex items-center justify-between gap-2">
+                                    <span class="t-subtext truncate">${escapeHtml(d.key)}</span>
+                                    <span class="t-text font-medium truncate ${isPurged ? 'line-through opacity-70' : ''}">${escapeHtml(d.val)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            body.innerHTML = html;
+        }
+
+        function buildOutputFilename(file, targetExt) {
+            if (state.hashFilenames) {
+                const token = Math.random().toString(36).substring(2, 9);
+                return `purge_${token}.${targetExt}`;
+            }
+            const base = file.name.replace(/\.[^/.]+$/, '');
+            return `${base}_purged.${targetExt}`;
+        }
+
+        function executeSanitize(index) {
+            const item = state.items[index];
+            if (!item || item.status === 'purged') return;
+
+            const stripBtn = document.getElementById(`strip-btn-${index}`);
+            stripBtn.classList.add('hidden');
+            document.getElementById(`meta-summary-${index}`).textContent = 'Purging signatures...';
+
+            if (item.category === 'IMG') {
+                const img = new Image();
+                img.onload = () => {
+                    const ratio = state.scale / 100;
+                    const tw = Math.max(1, Math.round(img.naturalWidth * ratio));
+                    const th = Math.max(1, Math.round(img.naturalHeight * ratio));
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = tw;
+                    canvas.height = th;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, tw, th);
+
+                    let mime = item.file.type;
+                    if (state.formatOverride.startsWith('image/')) {
+                        mime = state.formatOverride;
+                    }
+                    if (!['image/jpeg', 'image/png', 'image/webp'].includes(mime)) {
+                        mime = 'image/jpeg';
+                    }
+
+                    const ext = mime.split('/')[1] === 'jpeg' ? 'jpg' : mime.split('/')[1];
+                    const quality = state.quality / 100;
+
+                    canvas.toBlob((blob) => {
+                        completeSanitizeItem(item, blob, buildOutputFilename(item.file, ext), `${tw}×${th}px`);
+                    }, mime, quality);
+                };
+                img.src = item.previewUrl;
+            } else {
+                // Instant binary container scrubbing (Videos, Audio, PDF)
+                const cleanedBuffer = scrubBinaryContainer(item.buffer, item.category);
+                let outMime = item.file.type || 'application/octet-stream';
+                let ext = (item.file.name.split('.').pop() || 'bin').toLowerCase();
+
+                if (item.category === 'VID' && state.formatOverride.startsWith('video/')) {
+                    outMime = state.formatOverride;
+                    ext = outMime === 'video/quicktime' ? 'mov' : outMime.split('/')[1];
+                } else if (item.category === 'AUD' && state.formatOverride.startsWith('audio/')) {
+                    outMime = state.formatOverride;
+                    ext = outMime === 'audio/mpeg' ? 'mp3' : 'wav';
+                }
+
+                const cleanBlob = new Blob([cleanedBuffer], { type: outMime });
+                completeSanitizeItem(item, cleanBlob, buildOutputFilename(item.file, ext), 'Scrubbed Container');
+            }
+        }
+
+        function completeSanitizeItem(item, cleanBlob, outName, detailNote) {
+            item.status = 'purged';
+            item.cleanBlob = cleanBlob;
+            item.outName = outName;
+
+            const saved = Math.max(0, item.file.size - cleanBlob.size);
+            state.totalBytesSaved += saved;
+
+            const summaryEl = document.getElementById(`meta-summary-${item.index}`);
+            summaryEl.textContent = `${detailNote} · ${formatBytes(item.file.size)} → ${formatBytes(cleanBlob.size)} (Clean)`;
+
+            renderAccordionDetails(item, true);
+
+            const dlBtn = document.getElementById(`dl-btn-${item.index}`);
+            dlBtn.href = URL.createObjectURL(cleanBlob);
+            dlBtn.download = outName;
+            dlBtn.classList.remove('hidden');
+
+            saveHistoryRecord({
+                category: item.category,
+                outName,
+                originalSize: item.file.size,
+                cleanSize: cleanBlob.size,
+                strippedCount: item.totalTagsCount,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            syncBulkBar();
+        }
+
+        function syncBulkBar() {
+            const activeItems = state.items.filter(Boolean);
+            if (activeItems.length === 0) {
+                bulkBar.classList.add('hidden');
+                bulkBar.classList.remove('flex');
+                return;
+            }
+            bulkBar.classList.remove('hidden');
+            bulkBar.classList.add('flex');
+
+            const inspected = activeItems.filter(i => i.status === 'inspected').length;
+            const purged = activeItems.filter(i => i.status === 'purged').length;
+
+            bulkStatusText.textContent = `${purged}/${activeItems.length} files purged`;
+
+            if (inspected > 0) {
+                purgeAllBtn.classList.remove('hidden');
+            } else {
+                purgeAllBtn.classList.add('hidden');
+            }
+
+            if (purged > 0 && typeof JSZip !== 'undefined') {
+                bulkZipBtn.classList.remove('hidden');
+            } else {
+                bulkZipBtn.classList.add('hidden');
+            }
+        }
+
+        purgeAllBtn.addEventListener('click', () => {
+            state.items.forEach((item, idx) => {
+                if (item && item.status === 'inspected') executeSanitize(idx);
+            });
+        });
+
+        bulkZipBtn.addEventListener('click', () => {
+            const ready = state.items.filter(i => i && i.status === 'purged' && i.cleanBlob);
+            if (ready.length === 0 || typeof JSZip === 'undefined') return;
+
+            const originalLabel = bulkZipBtn.textContent;
+            bulkZipBtn.textContent = 'Archiving...';
+
+            const zip = new JSZip();
+            ready.forEach(item => zip.file(item.outName, item.cleanBlob));
+
+            zip.generateAsync({ type: 'blob' }).then((archive) => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(archive);
+                a.download = 'purge_batch.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                bulkZipBtn.textContent = originalLabel;
+            });
+        });
+
+        /* =========================================================================
+           5. OFFLINE SERVICE WORKER & PWA MANIFEST
+           ========================================================================= */
+        function setupOfflinePWA() {
+            const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="36" fill="#0D1110"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#82D8B0" font-family="monospace" font-weight="bold" font-size="44">PURGE</text></svg>`;
+            const iconDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(iconSvg)}`;
+
+            const manifest = {
+                name: 'PURGE',
+                short_name: 'PURGE',
+                description: 'Client-side media metadata sanitizer.',
+                start_url: './',
+                display: 'standalone',
+                background_color: '#0D1110',
+                theme_color: '#0D1110',
+                icons: [
+                    { src: iconDataUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+                    { src: iconDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(link);
+
+            if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+                const swCode = `
+                    const CACHE = 'purge-app-v2';
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(
+                            caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match(e.request)))
+                        );
+                    });
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+            }
+
+            const pwaBanner = document.getElementById('pwaBanner');
+            const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+            const pwaDismissBtn = document.getElementById('pwaDismissBtn');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                state.deferredPrompt = e;
+                pwaBanner.classList.remove('hidden');
+            });
+
+            pwaInstallBtn.addEventListener('click', async () => {
+                if (state.deferredPrompt) {
+                    state.deferredPrompt.prompt();
+                    await state.deferredPrompt.userChoice;
+                    state.deferredPrompt = null;
+                    pwaBanner.classList.add('hidden');
+                }
+            });
+
+            pwaDismissBtn.addEventListener('click', () => {
+                pwaBanner.classList.add('hidden');
+            });
+        }
+
+        renderHistoryList();
+        setupOfflinePWA();
+    </script>
+</body>
+</html>
